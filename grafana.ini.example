@@ -1,8 +1,0 @@
-[smtp]
-enabled = false
-host = smtp.example.com:587
-user = your-smtp-user
-password = your-smtp-password
-from_address = grafana@example.com
-from_name = Grafana
-skip_verify = false
