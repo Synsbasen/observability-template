@@ -17,16 +17,32 @@ A small, self-hosted observability stack using:
 - Linux host (Promtail is configured to read Docker logs from host)
 
 ## Quick start
-1. Copy env example and set values as needed:
+For a Linux server, this is the fastest path to get everything running:
+
+1. Clone and enter the project:
+```bash
+git clone https://github.com/Synsbasen/observability-template.git observability-template
+cd observability-template
+```
+
+2. Create your environment file:
 ```bash
 cp .env.example .env
 ```
-2. Start the stack:
+
+3. Start the stack:
 ```bash
 docker compose up -d
 ```
-3. Open Grafana:
-- URL: `http://localhost:4000`
+
+4. Confirm services are healthy:
+```bash
+docker compose ps
+```
+
+5. Open Grafana from your browser:
+- Local server access: `http://localhost:4000`
+- Remote server access: `http://<server-ip>:4000`
 
 ## Stop
 ```bash
