@@ -12,22 +12,22 @@ services:
     container_name: prometheus
     restart: unless-stopped
     volumes:
-      - ./config:/etc/prometheus/
+      - ./config:/etc/prometheus:ro
       - prometheus-data:/prometheus
     networks:
       - observability-network
-    ports:
-      - "127.0.0.1:9090:9090"
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=1y'
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=1y
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     restart: unless-stopped
     environment:
+      GF_SERVER_DOMAIN: grafana.example.com
+      GF_SERVER_ROOT_URL: https://grafana.example.com
       GF_SMTP_ENABLED: ${GF_SMTP_ENABLED:-false}
       GF_SMTP_HOST: ${GF_SMTP_HOST:-}
       GF_SMTP_USER: ${GF_SMTP_USER:-}
@@ -40,8 +40,6 @@ services:
       - ./config/grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
     networks:
       - observability-network
-    ports:
-      - "4000:3000"
 
   loki:
     image: grafana/loki:latest
@@ -53,8 +51,6 @@ services:
       - loki-data:/loki
     networks:
       - observability-network
-    ports:
-      - "127.0.0.1:3100:3100"
 
   promtail:
     image: grafana/promtail:latest
@@ -71,14 +67,22 @@ services:
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node_exporter
-    command:
-      - '--path.rootfs=/host'
-    pid: host
-    ports:
-      - "9100:9100"
     restart: unless-stopped
+    command:
+      - --path.rootfs=/host
+    pid: host
     volumes:
-      - '/:/host:ro,rslave'
+      - /:/host:ro,rslave
+    networks:
+      - observability-network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: unless-stopped
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN}
+    command: tunnel run
     networks:
       - observability-network
 
